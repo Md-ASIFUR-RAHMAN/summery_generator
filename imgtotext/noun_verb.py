@@ -2,7 +2,7 @@ import pytesseract
 from PIL import Image
 import spacy
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\asifu\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r''
 
 def extract_dialogue_info_from_image(image_path):
 
