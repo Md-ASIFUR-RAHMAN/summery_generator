@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dialogue Information</title>
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .box {
+            border: 1px solid #000;
+            padding: 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% for line_info in dialogue_info %}
+        <div class="box">
+            <h2>Line {{ forloop.counter }}</h2>
+            <h3>Nouns</h3>
+            <div class="noun-boxes">
+                {% for noun in line_info.nouns %}
+                <div>{{ noun }}</div>
+                {% endfor %}
+            </div>
+
+            <h3>Adjectives</h3>
+            <div class="adjective-boxes">
+                {% for adjective in line_info.adjectives %}
+                <div>{{ adjective }}</div>
+                {% endfor %}
+            </div>
+
+            <h3>Verbs</h3>
+            <div class="verb-boxes">
+                {% for verb in line_info.verbs %}
+                <div>{{ verb }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

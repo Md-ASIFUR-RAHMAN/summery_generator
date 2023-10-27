@@ -1,40 +1,41 @@
-from django.shortcuts import render, redirect, HttpResponseRedirect, HttpResponse
-from imgtotext.noun_verb import extract_dialogue_info_from_image
-from io import BytesIO
-from PIL import Image
+from django.shortcuts import render
+from imgtotext.noun_verb import extract_dialogue_info_from_image,For_noun_verb_adj
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.files import File
 import os
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-# Create your views here.
+class SentenceAnalysisView(APIView):
+    def post(self, request):
+        sentence = request.data.get('sentence', '')
+
+        nouns,adjectives,verbs = For_noun_verb_adj(sentence)
+
+        analysis = {
+            "sentence": sentence,
+            "nouns": nouns,
+            "adjectives": adjectives,
+            "verbs": verbs,
+        }
+        return Response(analysis, status=status.HTTP_200_OK)
+
 
 def Home(request):
+    return render(request, 'base.html')
 
-    return render(request,'base.html')
-
-
-def image_compress_save(image, img_name):
-    im = Image.open(image)  # or self.files['image'] in your form
-    # destroy color pew pew
-    im = im.convert('RGB')
-    im_io = BytesIO()
-    im.save(im_io, 'JPEG', quality=60)
-    compressed_image = File(im_io, name=img_name)
-    FileSystemStorage(location=os.path.join(settings.STATICFILES_DIRS[0], 'UPLOAD')).save(img_name,
-                                                                                                    compressed_image)
 def Collect_noun_and_verb(request):
-
     if request.method == 'GET':
         return render(request, 'image_upload_page.html')
+
     if request.method == 'POST':
+        if 'image' in request.FILES:
+            uploaded_image = request.FILES['image']
 
-        converted = 'converted.jpg'
+            fs = FileSystemStorage(location=os.path.join(settings.STATICFILES_DIRS[0], 'UPLOAD'))
+            saved_path = fs.save(uploaded_image.name, uploaded_image)
 
-        image_compress_save(request.FILES['image'],converted)
+            result_dict = extract_dialogue_info_from_image(os.path.join(settings.STATICFILES_DIRS[0], 'UPLOAD', saved_path))
 
-
-        result_dict = extract_dialogue_info_from_image("C:/Users/asifu/OneDrive/Desktop/ocr_python/summery/static/UPLOAD/converted.jpg")
-        print(result_dict)
-
-        return HttpResponse("Collected")
+        return render(request, 'separate_results.html', {'dialogue_info': result_dict})
